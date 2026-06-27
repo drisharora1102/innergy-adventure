@@ -39,24 +39,24 @@ function playSweep(context: AudioContext, type: Exclude<ToneType, 'finish'>) {
   oscillator.stop(startTime + 0.32);
 }
 
-function playHooray(context: AudioContext) {
+function playCompletionChimes(context: AudioContext) {
   const startTime = context.currentTime;
-  const notes = [523.25, 659.25, 783.99, 1046.5];
+  const notes = [659.25, 783.99, 987.77, 1318.51];
 
   notes.forEach((frequency, index) => {
-    const noteStart = startTime + index * 0.14;
+    const noteStart = startTime + index * 0.16;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
 
     oscillator.connect(gain);
     gain.connect(context.destination);
-    oscillator.type = index === notes.length - 1 ? 'triangle' : 'sine';
+    oscillator.type = 'sine';
     oscillator.frequency.setValueAtTime(frequency, noteStart);
     gain.gain.setValueAtTime(0.001, noteStart);
-    gain.gain.exponentialRampToValueAtTime(0.2, noteStart + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.34);
+    gain.gain.exponentialRampToValueAtTime(0.18, noteStart + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.48);
     oscillator.start(noteStart);
-    oscillator.stop(noteStart + 0.36);
+    oscillator.stop(noteStart + 0.5);
   });
 }
 
@@ -66,7 +66,7 @@ export function playTone(type: ToneType, muted: boolean) {
   if (!context) return;
 
   const play = () => {
-    if (type === 'finish') playHooray(context);
+    if (type === 'finish') playCompletionChimes(context);
     else playSweep(context, type);
   };
 
@@ -75,4 +75,9 @@ export function playTone(type: ToneType, muted: boolean) {
   } else {
     play();
   }
+}
+
+export function playResultChimes(muted: boolean) {
+  if (muted) return;
+  playTone('finish', false);
 }

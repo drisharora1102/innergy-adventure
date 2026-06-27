@@ -1,18 +1,28 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { QrCode, RefreshCw } from 'lucide-react';
+import { playResultChimes } from '../utils/audio';
 import { getScoreMessage, getWellnessLevel, getWellnessTitle } from '../utils/scoring';
 import { InnergyLogo } from './InnergyLogo';
 import type { GameResult } from '../types';
 
 type Props = {
   result: GameResult;
+  muted: boolean;
   onPlayAgain: () => void;
 };
 
-export function ResultScreen({ result, onPlayAgain }: Props) {
+export function ResultScreen({ result, muted, onPlayAgain }: Props) {
+  const hasPlayedCelebration = useRef(false);
   const title = getWellnessTitle(result);
   const level = getWellnessLevel(result.score);
   const message = getScoreMessage(result.score);
+
+  useEffect(() => {
+    if (hasPlayedCelebration.current) return;
+    hasPlayedCelebration.current = true;
+    playResultChimes(muted);
+  }, [muted]);
 
   return (
     <main className="screen result-screen">

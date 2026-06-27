@@ -71,7 +71,6 @@ export function Game() {
     endedRef.current = true;
     const lifeBonus = livesRef.current * LIFE_BONUS;
     const finalScore = Math.max(0, scoreRef.current + lifeBonus);
-    playTone('finish', muted);
     setResult({
       score: finalScore,
       baseScore: scoreRef.current,
@@ -81,7 +80,7 @@ export function Game() {
       badCaught: badRef.current
     });
     setScreen('results');
-  }, [muted]);
+  }, []);
 
   function resetGame() {
     const width = playAreaRef.current?.clientWidth || window.innerWidth;
@@ -324,7 +323,7 @@ export function Game() {
   }
 
   if (screen === 'results' && result) {
-    return <ResultScreen result={result} onPlayAgain={() => setScreen('start')} />;
+    return <ResultScreen result={result} muted={muted} onPlayAgain={() => setScreen('start')} />;
   }
 
   return (

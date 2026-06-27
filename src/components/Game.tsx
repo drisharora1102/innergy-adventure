@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BAD_ITEMS, BAD_POINTS, GAME_SECONDS, HEALTHY_ITEMS, HEALTHY_POINTS, LIFE_BONUS, POWER_UPS, STARTING_LIVES } from '../constants';
-import { playTone } from '../utils/audio';
+import { playTone, unlockAudio } from '../utils/audio';
 import { Basket } from './Basket';
 import { FallingObject } from './FallingObject';
 import { HUD } from './HUD';
@@ -112,9 +112,19 @@ export function Game() {
   }
 
   function startGame(name = playerName) {
+    void unlockAudio();
     setPlayerName(name.trim() || 'Innergy Player');
     resetGame();
     setScreen('playing');
+  }
+
+  function toggleSound() {
+    if (muted) {
+      void unlockAudio().then((unlocked) => {
+        if (unlocked) playTone('power', false);
+      });
+    }
+    setMuted((value) => !value);
   }
 
   const spawnItem = useCallback(() => {
@@ -310,7 +320,7 @@ export function Game() {
   }, [flash, powerTimers.rainbow]);
 
   if (screen === 'start') {
-    return <StartScreen muted={muted} onToggleMute={() => setMuted((value) => !value)} onStart={startGame} />;
+    return <StartScreen muted={muted} onToggleMute={toggleSound} onStart={startGame} />;
   }
 
   if (screen === 'results' && result) {
@@ -336,7 +346,7 @@ export function Game() {
         muted={muted}
         powerTimers={powerTimers}
         shield={shield}
-        onToggleMute={() => setMuted((value) => !value)}
+        onToggleMute={toggleSound}
       />
       <div className="fall-layer">
         {items.map((item) => <FallingObject key={item.id} item={item} />)}
